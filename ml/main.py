@@ -1,22 +1,26 @@
 import cv2
 from ultralytics import YOLO
 import supervision as sv
+import pymongo
 
 MODEL_NAME = "yolov8s.pt"
+CART_ID = "001"
 
 class detected_obj:
     def __init__(self, detection):
-        self.y_mid = (detection[0][1] + detection[0][3]) / 2
         self.xyxy = detection[0]
+        self.y_mid = (self.xyxy[1] + self.xyxy[3]) / 2
         self.confidence = detection[1]
         self.class_id = detection[2]
         self.tracker_id = detection[3]
         self.id = f"{self.class_id}_{self.tracker_id}"
-        self.inside = 0
-        self.gradient = 0
+
 
 def model_import(file_name):
     return YOLO(file_name)    
+
+def get_client():
+    return pymongo.MongoClient("mongodb+srv://smartcart:CelKysQazRJfz0yI@cluster0.wmyheb4.mongodb.net/")
 
 def get_boxannotator() -> sv.BoxAnnotator:
     return sv.BoxAnnotator(
@@ -42,7 +46,9 @@ def get_annotations(boxannotator, frame, detections, labels):
 def main():
     
     model = model_import(MODEL_NAME)
-
+    client = get_client()
+    db = client["cartData"]
+    collection = db[CART_ID]
     boxannotator = get_boxannotator()
     inside_cart = {}
     objs = {}
