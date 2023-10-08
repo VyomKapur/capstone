@@ -88,7 +88,7 @@ class smart_cart:
         self.collection.update_one(query, update, upsert=True)
 
     def track_and_run(self):
-        frame_ctr = 0
+        frame_ctr = 0 
         for result in self.model.track(source=0, stream=True):
             frame_ctr += 1
             frame = result.orig_img
